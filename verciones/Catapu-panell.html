@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catapu · Panel</title>
+<script>
+(function(){try{var s=JSON.parse(sessionStorage.getItem('catapu_sesion')||localStorage.getItem('catapu_sesion')||'null');if(!s||!(s.exp>Date.now()))throw 0;window.CATAPU_USER=s.u}catch(e){try{sessionStorage.removeItem('catapu_sesion');localStorage.removeItem('catapu_sesion')}catch(_){}location.replace('Catapu-login.html')}})();
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--navy:#0B2239;--navy2:#143556;--bg:#EEF3F7;--card:#fff;--line:#DCE5EC;--tx:#10283C;--mu:#6A7F90;--or:#FF8C00;--bl:#009FE3;--te:#B5401E;--gr:#1E9E6A;--ye:#B97700;--rd:#C23B22;--sh:0 1px 2px rgba(11,34,57,.06),0 6px 18px rgba(11,34,57,.05)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 'Space Grotesk',system-ui,sans-serif;display:flex;min-height:100vh}
+.mono,td.n,th.n,.kpi b,.bar em{font-variant-numeric:tabular-nums}
+aside{display:flex;flex-direction:column;width:232px;background:linear-gradient(180deg,var(--navy),var(--navy2));padding:22px 16px;flex:none;position:sticky;top:0;height:100vh;align-self:flex-start}
+.logo{display:block;width:100%;max-width:190px;height:auto;margin:0 0 34px 4px}
+nav a{display:block;padding:12px 16px;color:#A9BFD1;border-radius:8px;cursor:pointer;margin-bottom:4px;font-weight:500;transition:background .15s,color .15s}
+nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+nav a.on{background:rgba(255,255,255,.1);color:#fff;box-shadow:inset 3px 0 0 var(--or)}
+.usr{margin-top:auto;padding:14px 6px 0;border-top:1px solid rgba(255,255,255,.12);color:#A9BFD1;font-size:13px}
+.usr span{display:block;text-transform:capitalize}
+.usr button{width:100%;margin-top:8px;background:transparent;color:#fff;border-color:rgba(255,255,255,.28)}
+.usr button:hover{background:rgba(255,255,255,.1);border-color:#fff}
+main{flex:1;min-width:0}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;padding:22px 32px;background:var(--card);border-bottom:1px solid var(--line)}
+h1{margin:0;font-size:28px;font-weight:700;letter-spacing:-.4px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.filters label{display:flex;flex-direction:column;font-size:12px;font-weight:500;color:var(--mu);gap:5px}
+input,select,button{font:inherit;font-size:13.5px;background:#fff;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--bl);outline-offset:1px;border-color:var(--bl)}
+button{cursor:pointer;font-weight:500;transition:border-color .15s,background .15s}
+button:hover{border-color:var(--bl);background:#F3FAFE}
+.rg{background:#F3F6F9;padding:9px 12px}
+#go{background:var(--or);border-color:var(--or);color:#fff}#go:hover{background:#E67E00;border-color:#E67E00}
+.note{padding:16px 32px 0;font-size:13px;color:var(--mu);line-height:1.8}
+.note label{color:var(--bl);font-weight:500}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin:20px 32px}
+.kpi{background:var(--card);padding:22px 24px;border-radius:12px;box-shadow:var(--sh);border:1px solid var(--line);position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--navy)}
+.kpi:nth-child(2)::before{background:var(--or)}.kpi:nth-child(3)::before{background:var(--bl)}.kpi:nth-child(4)::before{background:var(--te)}
+.kpi b{display:block;font-size:46px;line-height:1.1;font-weight:700;letter-spacing:-1px}
+.kpi span{color:var(--mu);font-size:13.5px;font-weight:500}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin:0 32px 32px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh);padding:22px;overflow-x:auto}
+.card h3{margin:0 0 16px;font-size:16px;font-weight:700}
+details.card summary{font-weight:700}
+.bar{display:grid;grid-template-columns:120px 1fr 36px;gap:14px;align-items:center;margin:14px 0;font-size:13.5px}
+.bar i{display:block;height:10px;background:#E6EDF3;border-radius:6px}.bar i s{display:block;height:100%;background:var(--or);border-radius:6px}
+.grid .card:nth-child(2) .bar i s{background:var(--bl)}
+.bar em{text-align:right;font-style:normal;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{color:var(--mu);font-weight:500;font-size:12.5px;text-align:left;padding:10px 10px;border-bottom:2px solid var(--line);white-space:nowrap}
+td{padding:11px 10px;border-bottom:1px solid #EAF0F5}
+tr:hover td{background:#F6FAFD}
+td.n,th.n{text-align:right}td.n{font-weight:700}
+.tec{color:var(--te);font-weight:700}
+.chip{background:#FFF4E0;color:var(--ye);border-radius:20px;padding:3px 11px;font-size:12px;font-weight:700;white-space:nowrap}
+.chip.g{background:#E3F6EE;color:var(--gr)}.chip.r{background:#FDE9E5;color:var(--rd)}
+.donut{display:flex;gap:30px;align-items:center;flex-wrap:wrap}
+.ring{width:176px;height:176px;border-radius:50%;display:grid;place-items:center;flex:none}
+.ring div{width:112px;height:112px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-size:30px;font-weight:700}
+.lg{display:flex;gap:10px;align-items:center;margin:9px 0;font-size:13.5px}.lg u{width:12px;height:12px;border-radius:4px}
+.empty{color:var(--mu);font-style:italic;padding:14px 0}
+@media(max-width:760px){body{flex-direction:column}aside{width:auto;height:auto;position:static;display:flex;align-items:center;gap:10px;padding:10px 12px;overflow-x:auto}.logo{margin:0;width:120px;flex:none}nav{display:flex;gap:6px}nav a{margin:0;white-space:nowrap}.usr{margin:0 0 0 auto;padding:0;border:0;display:flex;gap:10px;align-items:center;flex:none}.usr button{width:auto;margin:0;padding:7px 10px}header,.note{padding-left:16px;padding-right:16px}.kpis,.grid{margin-left:16px;margin-right:16px}}
+</style>
+</head>
+<body>
+<aside>
+  <img class="logo" alt="Catapu" src="img/LOGO-CATAPU.png"
+  <nav id="nav"><a data-v="prod">Producción</a><a data-v="rep">Reparación</a><a data-v="gar">Garantías</a></nav>
+  <div class="usr"><span id="usr"></span><button id="salir">Cerrar sesión</button></div>
+</aside>
+<main id="main"></main>
+
+<script>
+/* ========== CONFIGURACIÓN ========== */
+const SHEET_ID = '1l7tG4YWmgPx1LujQm55yXClixT8kQmJi7cO_UWwuzR0';
+const HOJA = 'REPARADOS';           // hoja principal
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(HOJA)}`;
+
+/* ========== DATOS ========== */
+const ymd = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const hoy = () => ymd(new Date());
+let rows = [], S = {v:'prod', from:hoy(), to:hoy(), imei:'', lote:'todos', tec:'todos', estado:'cargando', src:'', err:''};
+const $ = s => document.querySelector(s);
+const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const up = t => String(t ?? '').trim().toUpperCase();
+const nrm = t => up(t).normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const iso = d => d ? d.toISOString().slice(0,10) : '';
+const fmt = d => d ? `${String(d.getUTCDate()).padStart(2,'0')}/${String(d.getUTCMonth()+1).padStart(2,'0')}/${d.getUTCFullYear()}` : '';
+const rango = () => S.dmin ? ` (del ${fmt(S.dmin)} al ${fmt(S.dmax)})` : '';
+
+function parseDate(v){
+  if (v instanceof Date) return isNaN(v) ? null : new Date(Date.UTC(v.getFullYear(), v.getMonth(), v.getDate()));
+  const m = String(v||'').match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+  if (!m) return null;
+  const y = +m[3] < 100 ? 2000 + +m[3] : +m[3];
+  return new Date(Date.UTC(y, +m[2]-1, +m[1]));
+}
+function csv(text){
+  const out=[]; let r=[], c='', q=false;
+  for (let i=0;i<text.length;i++){
+    const ch=text[i];
+    if (q){ if(ch==='"'){ if(text[i+1]==='"'){c+='"';i++} else q=false } else c+=ch }
+    else if (ch==='"') q=true;
+    else if (ch===','){ r.push(c); c='' }
+    else if (ch==='\n'||ch==='\r'){ if(ch==='\r'&&text[i+1]==='\n') i++; r.push(c); out.push(r); r=[]; c='' }
+    else c+=ch;
+  }
+  if (c||r.length){ r.push(c); out.push(r) }
+  return out;
+}
+function load(matrix){
+  const head = matrix[0].map(nrm);
+  const ix = n => head.findIndex(h => h.startsWith(n));
+  const k = {mo:ix('MODELO'),im:ix('IMEI'),fa:ix('FALLA'),cl:ix('CLIENTE'),fe:ix('FECHA'),re:ix('REPUESTO'),ob:ix('OBSERV'),te:ix('TECNICO'),ch:ix('CHEQUEO')};
+  if (k.mo<0 || k.fe<0) throw new Error('No encontré las columnas MODELO y FECHA DE REPARACIÓN en la primera fila de la hoja «'+HOJA+'».');
+  rows = matrix.slice(1).map(r => ({
+    modelo: up(r[k.mo]), imei: String(r[k.im]??'').trim(), falla: up(r[k.fa]), cliente: up(r[k.cl]),
+    fecha: parseDate(r[k.fe]), repuesto: up(r[k.re]), obs: up(r[k.ob]), tecnico: up(r[k.te]) || 'SIN TÉCNICO', chequeo: up(r[k.ch]),
+    txt: nrm([r[k.fa], r[k.re], r[k.ob]].join(' ')), txtAll: nrm([r[k.fa], r[k.re], r[k.ob], r[k.ch]].join(' '))
+  })).filter(r => r.modelo && r.fecha);
+  const ds = rows.map(r => r.fecha).sort((a,b)=>a-b);
+  S.dmin = ds[0] || null; S.dmax = ds[ds.length-1] || null;
+}
+/* Lectura sin CORS: el Sheet se carga como script externo (JSONP) */
+function jsonp(){
+  return new Promise((ok, ko) => {
+    const cb = 'gv' + Date.now(), s = document.createElement('script');
+    const fin = () => { clearTimeout(t); delete window[cb]; s.remove() };
+    const t = setTimeout(() => { fin(); ko(new Error('La hoja no respondió. ¿Está compartida como «Cualquier persona con el enlace»?')) }, 15000);
+    window[cb] = r => { fin(); ok(r) };
+    s.onerror = () => { fin(); ko(new Error('El navegador bloqueó la conexión con Google Sheets.')) };
+    s.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(HOJA)}&headers=1&tqx=out:json;responseHandler:${cb}&_=${Date.now()}`;
+    document.head.appendChild(s);
+  });
+}
+function tabla(r){
+  if (!r || r.status === 'error') throw new Error('Google Sheets rechazó la consulta (revisa el nombre de la hoja y que sea pública).');
+  const cell = c => { if (!c) return ''; const v = c.v;
+    if (typeof v === 'string' && /^Date\(/.test(v)) { const p = v.match(/\d+/g).map(Number); return new Date(p[0], p[1], p[2]) }
+    if (typeof v === 'number') return String(v);
+    return v ?? c.f ?? '' };
+  return [r.table.cols.map(c => c.label || ''), ...r.table.rows.map(row => row.c.map(cell))];
+}
+async function init(){
+  S.estado = 'cargando'; render();
+  try {
+    let m;
+    try { m = tabla(await jsonp()); }
+    catch (e1) {
+      const res = await fetch(SHEET_URL); const t = await res.text();
+      if (!res.ok || t.trim().startsWith('<')) throw e1;
+      m = csv(t);
+    }
+    load(m); S.estado = 'ok'; S.src = 'Google Sheets (en línea)'; S.err = ''; S.upd = new Date().toLocaleTimeString('es-PE');
+  } catch (e) {
+    rows = []; S.dmin = S.dmax = null; S.estado = 'error'; S.src = '';
+    S.err = (e.message || 'No se pudo leer la hoja') + ' Si abriste este archivo dentro de Claude, descárgalo y ábrelo en tu navegador; o carga el Excel con el enlace de abajo.';
+  }
+  render();
+}
+function fromFile(f){
+  const rd = new FileReader(), esCsv = /\.csv$/i.test(f.name);
+  rd.onload = e => {
+    try {
+      if (esCsv) load(csv(e.target.result));
+      else { const wb = XLSX.read(e.target.result,{type:'array',cellDates:true}); load(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames.includes(HOJA)?HOJA:wb.SheetNames[0]],{header:1,raw:true,defval:''})); }
+      S.estado = 'ok'; S.err = ''; S.src = 'archivo ' + f.name; S.upd = new Date().toLocaleTimeString('es-PE');
+    } catch (er) { S.estado = 'error'; S.err = er.message }
+    render();
+  };
+  esCsv ? rd.readAsText(f) : rd.readAsArrayBuffer(f);
+}
+
+/* ========== UTILIDADES DE VISTA ========== */
+const esBat = r => /BATER/.test(r.txt);
+const esChq = r => (!!r.chequeo && !/^(NO|N\/A|-|0|FALSE)$/.test(nrm(r.chequeo))) || /CHEQUE/.test(r.txt);
+const esPul = r => /PULI/.test(r.txtAll);
+const inRange = r => { const a = S.from, b = S.to, sw = a && b && a > b, lo = sw ? b : a, hi = sw ? a : b, d = iso(r.fecha); return (!lo || d >= lo) && (!hi || d <= hi) };
+const count = (list, fn) => { const m = {}; list.forEach(r => { const k = fn(r); m[k] = (m[k]||0)+1 }); return Object.entries(m).sort((a,b)=>b[1]-a[1]) };
+const bars = (pairs) => { const mx = Math.max(1, ...pairs.map(p=>p[1]));
+  return pairs.length ? pairs.map(([n,v]) => `<div class="bar mono"><span>${esc(n)}</span><i><s style="width:${v/mx*100}%"></s></i><em>${v}</em></div>`).join('') : '<div class="empty">Sin datos en este rango.</div>' };
+const kpi = (n,l) => `<div class="kpi"><b>${n}</b><span>${l}</span></div>`;
+const dateInputs = () => `<label>Desde<input type="date" id="f-from" value="${S.from}"></label><label>Hasta<input type="date" id="f-to" value="${S.to}"></label>`;
+const head = (title, extra) => `<header><h1>${title}</h1><div class="filters">${extra}${dateInputs()}<button class="rg" data-r="hoy">Hoy</button><button class="rg" data-r="7">7 días</button><button class="rg" data-r="mes">Este mes</button><button class="rg" data-r="todo">Todo</button><button id="go">↻ Actualizar</button></div></header>`;
+const note = t => `<div class="note">${S.estado==='error'?`<span style="color:var(--rd)">⚠ ${esc(S.err)}</span><br>`:''}${t}<br>Fuente: ${esc(S.src||'sin datos')}${S.upd?' · actualizado '+S.upd:''}. <label style="cursor:pointer;text-decoration:underline">Cargar archivo (.xlsx / .csv)<input type="file" id="file" accept=".xlsx,.xls,.csv" hidden></label></div>`;
+const techs = () => [...new Set(rows.map(r=>r.tecnico))].sort();
+
+/* ========== VISTAS ========== */
+function prod(){
+  let d = rows.filter(inRange).filter(r => !S.imei || r.imei.includes(S.imei.trim()))
+    .filter(r => S.lote==='todos' || (S.lote==='lote' ? r.cliente==='LOTE' : r.cliente!=='LOTE'));
+  const bat = d.filter(esBat);
+  const chq = d.filter(esChq);
+  const pul = d.filter(esPul);
+  const models = count(d, r => r.modelo);
+  return head('Producción', `<label>Buscar IMEI<input id="f-imei" placeholder="Buscar por IMEI…" value="${esc(S.imei)}"></label>
+    <label>Lote<select id="f-lote">${[['todos','Todos'],['lote','Solo lote'],['cli','Clientes']].map(o=>`<option value="${o[0]}" ${S.lote===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></label>`)
+  + note(`${rows.length} registros cargados${rango()}.`)
+  + `<div class="kpis">${kpi(d.length,'Total de equipos trabajados')}${kpi(bat.length,'Baterías cambiadas')}${kpi(chq.length,'Chequeos')}${kpi(pul.length,'Equipos pulidos')}</div>
+  <div class="grid">
+    <div class="card"><h3>Cambios de batería por técnico</h3>${bars(count(bat, r=>r.tecnico))}</div>
+    <div class="card"><h3>Chequeos por técnico</h3>${bars(count(chq, r=>r.tecnico))}</div>
+    <details class="card" style="grid-column:1/-1"><summary style="cursor:pointer">Diagnóstico (toda la hoja, sin filtro de fecha)</summary><div class="note" style="padding:12px 0 0">
+      ${rows.length} filas · baterías: ${rows.filter(esBat).length} · chequeos: ${rows.filter(esChq).length} · pulidos: ${rows.filter(esPul).length}<br>
+      Valores en CHEQUEO: ${esc(count(rows.filter(r=>r.chequeo), r=>r.chequeo).slice(0,8).map(x=>x[0]+' ('+x[1]+')').join(' | ')) || '(vacío)'}<br>
+      Técnicos: ${esc(count(rows, r=>r.tecnico).slice(0,8).map(x=>x[0]+' ('+x[1]+')').join(' | ')) || '(vacío)'}<br>
+      Últimas fechas con datos: ${esc(count(rows, r=>fmt(r.fecha)).slice(0,1).length ? [...new Set(rows.map(r=>iso(r.fecha)))].sort().slice(-5).join(', ') : '')}</div></details>
+    <div class="card" style="grid-column:1/-1"><h3>Modelos</h3><table><tr><th>Modelo</th><th class="n">Cantidad</th></tr>
+      ${models.map(([m,c])=>`<tr><td class="mono">${esc(m)}</td><td class="n">${c}</td></tr>`).join('')||'<tr><td class="empty">Sin datos.</td></tr>'}</table></div>
+  </div>`;
+}
+function rep(){
+  let d = rows.filter(inRange).filter(r => S.tec==='todos' || r.tecnico===S.tec);
+  const byT = count(d, r=>r.tecnico), colors = ['#FF8C00','#009FE3','#B5401E','#0B2239','#7FB8D8','#F2B866'];
+  let acc = 0; const total = d.length || 1;
+  const grad = byT.map(([,v],i)=>{ const a=acc/total*100; acc+=v; return `${colors[i%6]} ${a}% ${acc/total*100}%` }).join(',') || '#243039 0 100%';
+  const fallas = new Set(d.map(r=>r.falla)).size;
+  const grp = count(d, r=>[r.tecnico,r.modelo,r.falla].join('|')).map(([k,c])=>[...k.split('|'),c]).sort((a,b)=>a[0].localeCompare(b[0])||b[3]-a[3]);
+  return head('Reparación', `<label>Técnico<select id="f-tec"><option value="todos">Todos</option>${techs().map(t=>`<option ${S.tec===t?'selected':''}>${esc(t)}</option>`).join('')}</select></label>`)
+  + note(`${rows.length} registros cargados${rango()}.`)
+  + `<div class="kpis">${kpi(d.length,'Fallas reparadas')}${kpi(byT.length,'Técnicos con reparaciones')}${kpi(byT.length?(d.length/byT.length).toFixed(1):0,'Promedio por técnico')}${kpi(fallas,'Tipos de falla distintos')}</div>
+  <div class="grid">
+    <div class="card"><h3>Conteo por técnico</h3>${bars(byT)}</div>
+    <div class="card"><h3>Avance por técnico</h3><div class="donut"><div class="ring" style="background:conic-gradient(${grad})"><div>${d.length}</div></div>
+      <div>${byT.map(([n,v],i)=>`<div class="lg mono"><u style="background:${colors[i%6]}"></u>${esc(n)} &nbsp; ${v} · ${(v/total*100).toFixed(1)}%</div>`).join('')}</div></div></div>
+    <div class="card" style="grid-column:1/-1"><h3>Total de reparaciones: técnico, modelo y falla</h3><table><tr><th>Técnico</th><th>Modelo</th><th>Falla</th><th class="n">Total</th></tr>
+      ${grp.map((g,i)=>`<tr><td class="tec mono">${i&&grp[i-1][0]===g[0]?'':esc(g[0])}</td><td class="mono">${esc(g[1])}</td><td class="mono">${esc(g[2])}</td><td class="n">${g[3]}</td></tr>`).join('')||'<tr><td class="empty">Sin datos.</td></tr>'}</table></div>
+  </div>`;
+}
+function gar(){
+  const d = rows.filter(inRange).filter(r => /GARANTIA/.test(r.obs)).filter(r => !S.imei || r.imei.includes(S.imei.trim()));
+  const tipo = r => /FUERA/.test(r.obs) ? 2 : /REPARACION/.test(r.obs) ? 1 : 0;
+  const sec = [['Garantía de equipo','g'],['Garantía de reparación',''],['Fuera de garantía','r']];
+  return head('Garantías', `<label>Buscar IMEI<input id="f-imei" placeholder="Buscar por IMEI…" value="${esc(S.imei)}"></label>`)
+  + note(`${d.length} registros con garantía en el rango.`)
+  + sec.map(([t,cls],i)=>{ const l = d.filter(r=>tipo(r)===i);
+    return `<div class="card" style="margin:18px 28px"><h3>${t} <span style="color:var(--mu);font-weight:400">(${l.length})</span></h3>` + (l.length ?
+      `<table><tr><th>Estado</th><th>Fecha</th><th>Cliente</th><th>Modelo</th><th>IMEI</th><th>Falla</th><th>Repuesto</th><th>Técnico</th></tr>${l.map(r=>
+      `<tr><td><span class="chip ${cls}">${t.split(' ').slice(-1)[0]}</span></td><td class="mono">${fmt(r.fecha)}</td><td>${esc(r.cliente)}</td><td class="mono">${esc(r.modelo)}</td><td class="mono">${esc(r.imei)}</td><td>${esc(r.falla)}</td><td>${esc(r.repuesto)}</td><td class="tec">${esc(r.tecnico)}</td></tr>`).join('')}</table>`
+      : '<div class="empty">Sin garantías en este rango.</div>') + '</div>' }).join('');
+}
+
+/* ========== RENDER ========== */
+function render(){
+  const ac = document.activeElement, fid = ac && ac.id, pos = ac && ac.selectionStart;
+  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.dataset.v===S.v));
+  $('#main').innerHTML = S.estado==='cargando' ? '<div class="note">Cargando datos de la hoja…</div>' : {prod,rep,gar}[S.v]();
+  const bind = (id, key) => { const e = $(id); if (e) e.onchange = () => { S[key] = e.value; render() } };
+  bind('#f-from','from'); bind('#f-to','to'); bind('#f-lote','lote'); bind('#f-tec','tec');
+  const im = $('#f-imei'); if (im) im.oninput = () => { S.imei = im.value; render() };
+  document.querySelectorAll('.rg').forEach(b => b.onclick = () => {
+    const r = b.dataset.r;
+    if (r === 'hoy') S.from = S.to = hoy();
+    else if (r === '7') { const d = new Date(); d.setDate(d.getDate()-6); S.from = ymd(d); S.to = hoy() }
+    else if (r === 'mes') { S.from = hoy().slice(0,8) + '01'; S.to = hoy() }
+    else { S.from = S.dmin ? iso(S.dmin) : ''; S.to = S.dmax ? iso(S.dmax) : hoy() }
+    render();
+  });
+  const go = $('#go'); if (go) go.onclick = () => init();
+  const fl = $('#file'); if (fl) fl.onchange = e => e.target.files[0] && fromFile(e.target.files[0]);
+  if (fid && $('#'+fid)) { const e = $('#'+fid); e.focus(); if (pos != null) try { e.setSelectionRange(pos, pos) } catch {} }
+}
+document.querySelectorAll('#nav a').forEach(a => a.onclick = () => { S.v = a.dataset.v; render() });
+$('#usr').textContent = window.CATAPU_USER || '';
+$('#salir').onclick = () => { sessionStorage.removeItem('catapu_sesion'); localStorage.removeItem('catapu_sesion'); location.replace('Catapu-login.html') };
+init();
+</script>
+</body>
+</html>
